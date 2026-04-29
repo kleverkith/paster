@@ -22,12 +22,27 @@ from paster.parser import parse_whatsapp_text
 from paster.watcher_status import load_status
 
 BASE_DIR = Path(__file__).resolve().parents[2]
-DEFAULT_CONNECTION_TEMPLATE = Path.home() / "Downloads" / "sample.xlsx"
-DEFAULT_SUMMARY_TEMPLATE = Path.home() / "Downloads" / "Mon,,Wed,Friday Reports.xlsx"
 OUTPUT_DIR = BASE_DIR / "outputs"
 DATA_DIR = BASE_DIR / "data"
 SYNC_STATUS_FILE = DATA_DIR / "google-sync-status.json"
 LOCAL_CONFIG_FILE = DATA_DIR / "app-config.json"
+
+
+def first_existing_path(*candidates: Path) -> Path | None:
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate
+    return None
+
+
+DEFAULT_CONNECTION_TEMPLATE = first_existing_path(
+    BASE_DIR / "templates" / "sample.xlsx",
+    Path.home() / "Downloads" / "sample.xlsx",
+)
+DEFAULT_SUMMARY_TEMPLATE = first_existing_path(
+    BASE_DIR / "templates" / "Mon,,Wed,Friday Reports.xlsx",
+    Path.home() / "Downloads" / "Mon,,Wed,Friday Reports.xlsx",
+)
 
 
 def uploaded_images_to_temp(files) -> list[Path]:
@@ -78,8 +93,16 @@ def main() -> None:
 
     with st.sidebar:
         st.subheader("Templates")
-        connection_template = st.text_input("Connections template", str(DEFAULT_CONNECTION_TEMPLATE))
-        summary_template = st.text_input("Summary template", str(DEFAULT_SUMMARY_TEMPLATE))
+        connection_template = st.text_input(
+            "Connections template",
+            str(DEFAULT_CONNECTION_TEMPLATE) if DEFAULT_CONNECTION_TEMPLATE else "",
+            placeholder="Path to sample.xlsx",
+        )
+        summary_template = st.text_input(
+            "Summary template",
+            str(DEFAULT_SUMMARY_TEMPLATE) if DEFAULT_SUMMARY_TEMPLATE else "",
+            placeholder="Path to Mon,,Wed,Friday Reports.xlsx",
+        )
         output_dir = Path(st.text_input("Output folder", str(OUTPUT_DIR)))
         target_sheet_name = st.text_input("Connections sheet name", "April Connections")
         summary_sheet_name = st.text_input("Summary sheet name", "Sheet1")
@@ -241,6 +264,10 @@ def main() -> None:
 
         if st.button("Generate Excel Files"):
             try:
+                if not connection_template or not Path(connection_template).exists():
+                    raise FileNotFoundError("Connections template not found. Set a valid sample.xlsx path first.")
+                if not summary_template or not Path(summary_template).exists():
+                    raise FileNotFoundError("Summary template not found. Set a valid summary workbook path first.")
                 append_connections(
                     template_path=connection_template,
                     output_path=connections_output,
