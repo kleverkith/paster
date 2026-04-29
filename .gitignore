@@ -1,0 +1,11 @@
+.pytest_cache/
+.pytest_cache_local/
+.pytest_tmp/
+__pycache__/
+.streamlit/
+outputs/
+*.pyc
+node_modules/
+.wwebjs_auth/
+.wwebjs_cache/
+data/

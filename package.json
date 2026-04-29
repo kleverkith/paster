@@ -1,0 +1,23 @@
+{
+  "name": "paster",
+  "version": "1.0.0",
+  "description": "`Paster` is a local WhatsApp-to-report helper for your connections workflow.",
+  "main": "whatsapp/group_watcher.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "watch": "node whatsapp/group_watcher.js",
+    "watch:help": "node whatsapp/group_watcher.js --help"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "qrcode-terminal": "^0.12.0",
+    "whatsapp-web.js": "^1.34.7"
+  }
+}
